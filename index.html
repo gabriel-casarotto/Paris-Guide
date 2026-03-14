@@ -5,13 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Paris — Mon Parcours</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-<!-- Script pour le contenu et l'interactivité (anonyme) -->
-<script data-goatcounter="https://gotagab.goatcounter.com/count"
-        async src="//gc.zgo.at/count.js"></script>
+<script data-goatcounter="https://gotagab.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+
 <style>
 * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
 :root {
@@ -39,23 +38,25 @@ body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); 
 }
 .lang-btn.active { background:var(--accent); border-color:var(--accent); color:#fff; }
 
-/* DURATION */
-.dur-section { padding:16px 20px 0; }
+/* DURATION - Optimisé Mobile (Liste verticale au lieu du scroll) */
+.dur-section { padding:20px 20px 0; }
 .section-label {
-  font-family:'Syne',sans-serif; font-size:11px; font-weight:700;
-  letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:12px;
+  font-family:'Syne',sans-serif; font-size:12px; font-weight:700;
+  letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); margin-bottom:14px;
 }
-.dur-pills { display:flex; gap:8px; overflow-x:auto; padding-bottom:8px; scrollbar-width:none; }
-.dur-pills::-webkit-scrollbar { display:none; }
+.dur-pills { 
+  display:flex; flex-direction:column; gap:8px; padding-bottom:10px; 
+}
 .dur-pill {
-  flex-shrink:0; background:var(--surface); border:1px solid var(--border);
-  color:var(--muted2); font-family:'Syne',sans-serif; font-size:13px; font-weight:700;
-  padding:10px 18px; border-radius:30px; cursor:pointer; transition:all .2s; white-space:nowrap;
+  background:var(--surface); border:1px solid var(--border);
+  color:var(--muted2); font-family:'Syne',sans-serif; font-size:14px; font-weight:700;
+  padding:14px 20px; border-radius:10px; cursor:pointer; transition:all .2s;
+  text-align: left;
 }
 .dur-pill.active { background:var(--accent); border-color:var(--accent); color:#fff; }
 
 /* MAP */
-#map-wrap { position:relative; margin-top:16px; }
+#map-wrap { position:relative; margin-top:10px; }
 #map { width:100%; height:45vh; min-height:300px; max-height:500px; }
 .leaflet-container { background:#111; }
 .leaflet-tile { filter:brightness(0.65) saturate(0.5) contrast(1.15); }
@@ -70,8 +71,9 @@ body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); 
   padding:12px 16px; display:none; gap:20px; align-items:center;
 }
 .stat { text-align:center; }
-.stat-val { font-family:'Syne',sans-serif; font-size:17px; font-weight:800; color:var(--accent); line-height:1; }
-.stat-key { font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); margin-top:4px; }
+/* Police Inter pour les chiffres pour éviter l'effet "aplati" */
+.stat-val { font-family:'Inter',sans-serif; font-size:18px; font-weight:700; color:var(--accent); line-height:1; letter-spacing:-0.5px; }
+.stat-key { font-size:10px; font-family:'Syne',sans-serif; letter-spacing:1px; text-transform:uppercase; color:var(--muted); margin-top:4px; font-weight:700; }
 .stat-divider { width:1px; height:32px; background:var(--border); }
 
 .day-btns {
@@ -79,9 +81,9 @@ body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); 
   display:none; flex-direction:column; gap:6px;
 }
 .day-btn {
-  width:36px; height:36px; border-radius:50%;
+  width:38px; height:38px; border-radius:50%;
   background:rgba(10,10,10,0.88); border:1.5px solid var(--border);
-  color:var(--muted2); font-family:'Syne',sans-serif; font-size:12px; font-weight:800;
+  color:var(--muted2); font-family:'Syne',sans-serif; font-size:13px; font-weight:800;
   cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .15s;
 }
 .day-btn.active { background:var(--accent); border-color:var(--accent); color:#fff; }
@@ -92,7 +94,7 @@ body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); 
 }
 .progress-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
 .progress-label { font-family:'Syne',sans-serif; font-size:13px; font-weight:700; }
-.progress-count { font-size:13px; color:var(--muted2); font-weight:500; }
+.progress-count { font-family:'Inter',sans-serif; font-size:13px; color:var(--muted2); font-weight:600; }
 .pbar-track { height:4px; background:var(--border); border-radius:4px; overflow:hidden; }
 .pbar-fill {
   height:100%; border-radius:4px;
@@ -103,9 +105,9 @@ body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); 
 /* CHECKLIST */
 #checklist { padding:0 20px 100px; }
 
-.empty { text-align:center; padding:80px 20px; color:var(--muted); }
+.empty { text-align:center; padding:60px 20px; color:var(--muted); }
 .empty-icon { font-size:42px; margin-bottom:12px; }
-.empty-text { font-family:'Syne',sans-serif; font-size:15px; font-weight:600; }
+.empty-text { font-family:'Syne',sans-serif; font-size:15px; font-weight:600; line-height: 1.4; }
 
 .day-group { margin-top:24px; }
 .day-group-head {
@@ -124,7 +126,7 @@ body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); 
 .day-group-title { font-family:'Syne',sans-serif; font-size:15px; font-weight:700; }
 .day-group-theme { font-size:12px; color:var(--muted); margin-left:auto; }
 
-/* STOP CARD (Agrandie pour mobile) */
+/* STOP CARD */
 .stop-card {
   display:flex; align-items:flex-start; gap:14px;
   padding:16px 0; border-bottom:1px solid var(--border);
@@ -135,11 +137,12 @@ body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); 
 .stop-card.done { opacity:.4; }
 .stop-card.done .stop-name { text-decoration:line-through; }
 
+/* Police Inter pour les chiffres des étapes */
 .stop-num {
   flex-shrink:0; width:30px; height:30px; border-radius:50%;
   background:var(--surface); border:1.5px solid var(--border);
   display:flex; align-items:center; justify-content:center;
-  font-family:'Syne',sans-serif; font-size:12px; font-weight:800; color:var(--muted2);
+  font-family:'Inter',sans-serif; font-size:13px; font-weight:700; color:var(--muted2);
   transition:all .2s; margin-top:2px;
 }
 .stop-card.done .stop-num { background:var(--green); border-color:var(--green); color:#fff; font-size:14px; }
@@ -158,15 +161,15 @@ body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); 
 .tag.walk  { border-color:rgba(160,174,192,.28); color:#a0aec0; }
 .tag.secret { border-color:rgba(255,77,0,.4); color:var(--accent); }
 
-/* Marker styles */
+/* Marker styles - Police Inter pour ne pas aplatir */
 .cm { 
   width:28px; height:28px; border-radius:50%;
   background:var(--accent,#FF4D00); border:2.5px solid rgba(255,255,255,0.9);
   display:flex; align-items:center; justify-content:center;
-  font-family:'Syne',sans-serif; font-size:11px; font-weight:800; color:#fff;
+  font-family:'Inter',sans-serif; font-size:12px; font-weight:700; color:#fff;
   box-shadow:0 3px 10px rgba(0,0,0,0.6);
 }
-.cm.done-m { background:#22c55e; }
+.cm.done-m { background:#22c55e; font-size:14px; }
 
 /* COMPLETE BANNER */
 .complete-banner {
@@ -282,13 +285,14 @@ const DAYS_STRUCT = {
 };
 
 // ──────────────────────────────────────────
-// TRANSLATIONS (Croissant supprimé)
+// TRANSLATIONS
 // ──────────────────────────────────────────
 const L10N = {
   fr:{
     how_long:"Combien de jours ?", km:"km", stops:"étapes", hours:"heures",
     progress:"Progression", choose:"Choisissez la durée de votre séjour",
     ok_title:"Journée accomplie ! 🎉", ok_sub:"Vous avez tout vu. Paris vous appartient.",
+    dayFmt: n => `Jour ${n}`, dayBtnFmt: n => `J${n}`,
     pills:["1 jour — L'essentiel","2 jours — Le classique","3 jours — Paris complet","4 jours — Paris profond","5+ jours — Vivre Paris"],
     tags:{food:"À manger",view:"Belle vue",culture:"Culture",walk:"Ballade",secret:"Secret"},
     day_titles:{
@@ -324,6 +328,7 @@ const L10N = {
     how_long:"How many days?", km:"km", stops:"stops", hours:"hours",
     progress:"Progress", choose:"Choose your stay duration",
     ok_title:"Day complete! 🎉", ok_sub:"You've seen it all. Paris is yours.",
+    dayFmt: n => `Day ${n}`, dayBtnFmt: n => `D${n}`,
     pills:["1 day — Essentials","2 days — Classic","3 days — Full Paris","4 days — Deep Paris","5+ days — Living Paris"],
     tags:{food:"Eat this",view:"Great view",culture:"Culture",walk:"Walk",secret:"Hidden gem"},
     day_titles:{
@@ -359,6 +364,7 @@ const L10N = {
     how_long:"며칠 머무시나요?", km:"km", stops:"장소", hours:"시간",
     progress:"진행 상황", choose:"머무는 기간을 선택하세요",
     ok_title:"하루 완주! 🎉", ok_sub:"모두 보셨어요. 파리가 당신 것입니다.",
+    dayFmt: n => `${n}일차`, dayBtnFmt: n => `${n}일`,
     pills:["1일 — 핵심만","2일 — 클래식","3일 — 파리 완전 정복","4일 — 깊은 파리","5일+ — 파리 살기"],
     tags:{food:"먹거리",view:"뷰포인트",culture:"문화",walk:"산책",secret:"숨은 명소"},
     day_titles:{
@@ -475,27 +481,25 @@ function selectDuration(d) {
 
 function renderAll() {
   renderDayBtns();
-  drawDay(activeDayIdx);
   renderChecklist();
   updateProgress();
+  drawDay(activeDayIdx);
 }
 
 function renderDayBtns() {
+  const c = L10N[curLang];
   const el = document.getElementById('day-btns');
   const struct = DAYS_STRUCT[numDays]||[];
   if (struct.length <= 1) { el.style.display='none'; return; }
   el.style.display='flex';
   el.innerHTML = struct.map((_,i)=>
-    `<button class="day-btn${i===activeDayIdx?' active':''}" onclick="switchDay(${i})">J${i+1}</button>`
+    `<button class="day-btn${i===activeDayIdx?' active':''}" onclick="switchDay(${i})">${c.dayBtnFmt(i+1)}</button>`
   ).join('');
 }
 
 function switchDay(idx) {
   activeDayIdx = idx;
-  renderDayBtns();
-  drawDay(idx);
-  renderChecklist();
-  updateProgress();
+  renderAll();
 }
 
 function renderChecklist() {
@@ -506,10 +510,11 @@ function renderChecklist() {
   let html = '';
   struct.forEach((day, di) => {
     const isActive = di === activeDayIdx;
-    const dt = c.day_titles[day.k] || ['Jour',''];
+    const dt = c.day_titles[day.k] || [c.dayFmt(di+1),''];
+    
     html += `<div class="day-group">
       <div class="day-group-head" onclick="switchDay(${di})">
-        <span class="day-badge${isActive?' active-badge':''}">Jour ${di+1}</span>
+        <span class="day-badge${isActive?' active-badge':''}">${c.dayFmt(di+1)}</span>
         <span class="day-group-title">${dt[0]}</span>
         <span class="day-group-theme">${dt[1]}</span>
       </div>`;
@@ -518,6 +523,7 @@ function renderChecklist() {
       day.stops.forEach((key, si) => {
         const s = c.stops[key]; if (!s) return;
         const done = checked[key];
+        
         html += `<div class="stop-card${done?' done':''}" onclick="toggle('${key}')">
           <div class="stop-num">${done ? '✓' : si+1}</div>
           <div class="stop-body">
@@ -544,9 +550,7 @@ function renderChecklist() {
 
 function toggle(key) {
   checked[key] = !checked[key];
-  renderChecklist();
-  updateProgress();
-  drawDay(activeDayIdx);
+  renderAll();
 }
 
 function updateProgress() {
@@ -558,14 +562,18 @@ function updateProgress() {
 }
 
 // ──────────────────────────────────────────
-// LANGUAGE (Mise à jour instantanée ajoutée)
+// LANGUAGE (Refonte pour forcer le rafraîchissement global)
 // ──────────────────────────────────────────
 function setLang(l) {
   curLang = l;
+  
+  // Met à jour les boutons visuellement
   document.querySelectorAll('.lang-btn').forEach(b => {
     b.classList.toggle('active',
       (l==='fr'&&b.textContent==='FR')||(l==='en'&&b.textContent==='EN')||(l==='ko'&&b.textContent==='한국어'));
   });
+  
+  // Met à jour les textes statiques en haut
   const c = L10N[l];
   document.getElementById('lbl-how-long').textContent = c.how_long;
   document.getElementById('lbl-km').textContent = c.km;
@@ -574,11 +582,12 @@ function setLang(l) {
   document.getElementById('lbl-progress').textContent = c.progress;
   document.getElementById('lbl-choose').textContent = c.choose;
   
+  // Reconstruit la liste des durées
   buildPills();
   
-  // Si l'utilisateur a déjà choisi une durée, on redessine tout instantanément
-  if (numDays) { 
-    renderAll(); 
+  // Si un parcours est en cours, force TOUT à se redessiner
+  if (numDays !== null) { 
+    renderAll();
   }
 }
 
