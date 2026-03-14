@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Paris — Mon Parcours</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<!-- Script pour le contenu et l'interactivité (anonyme) -->
+<script data-goatcounter="https://gotagab.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+:root {
+  --bg: #0f0f0f; --surface: #1a1a1a; --border: #272727;
+  --text: #f0f0f0; --muted: #777; --muted2: #999;
+  --accent: #FF4D00; --accent2: #FFB800; --green: #22c55e;
+}
+body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+
+/* TOP BAR */
+.top-bar {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:16px 20px;
+  border-bottom:1px solid var(--border);
+  position:sticky; top:0; z-index:1000;
+  background:rgba(15,15,15,0.96); backdrop-filter:blur(12px);
+}
+.logo { font-family:'Syne',sans-serif; font-size:19px; font-weight:800; letter-spacing:-0.5px; }
+.logo span { color:var(--accent); }
+.lang-group { display:flex; gap:6px; }
+.lang-btn {
+  background:var(--surface); border:1px solid var(--border); color:var(--muted2);
+  font-family:'Syne',sans-serif; font-size:11px; font-weight:700; letter-spacing:1px;
+  padding:8px 12px; border-radius:6px; cursor:pointer; transition:all .15s;
+}
+.lang-btn.active { background:var(--accent); border-color:var(--accent); color:#fff; }
+
+/* DURATION */
+.dur-section { padding:16px 20px 0; }
+.section-label {
+  font-family:'Syne',sans-serif; font-size:11px; font-weight:700;
+  letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:12px;
+}
+.dur-pills { display:flex; gap:8px; overflow-x:auto; padding-bottom:8px; scrollbar-width:none; }
+.dur-pills::-webkit-scrollbar { display:none; }
+.dur-pill {
+  flex-shrink:0; background:var(--surface); border:1px solid var(--border);
+  color:var(--muted2); font-family:'Syne',sans-serif; font-size:13px; font-weight:700;
+  padding:10px 18px; border-radius:30px; cursor:pointer; transition:all .2s; white-space:nowrap;
+}
+.dur-pill.active { background:var(--accent); border-color:var(--accent); color:#fff; }
+
+/* MAP */
+#map-wrap { position:relative; margin-top:16px; }
+#map { width:100%; height:45vh; min-height:300px; max-height:500px; }
+.leaflet-container { background:#111; }
+.leaflet-tile { filter:brightness(0.65) saturate(0.5) contrast(1.15); }
+.leaflet-control-zoom { display:none; }
+.leaflet-control-attribution { display:none; }
+
+/* Map overlays */
+.map-stats {
+  position:absolute; bottom:12px; left:12px; z-index:500;
+  background:rgba(10,10,10,0.9); backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,0.07); border-radius:12px;
+  padding:12px 16px; display:none; gap:20px; align-items:center;
+}
+.stat { text-align:center; }
+.stat-val { font-family:'Syne',sans-serif; font-size:17px; font-weight:800; color:var(--accent); line-height:1; }
+.stat-key { font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); margin-top:4px; }
+.stat-divider { width:1px; height:32px; background:var(--border); }
+
+.day-btns {
+  position:absolute; top:12px; right:12px; z-index:500;
+  display:none; flex-direction:column; gap:6px;
+}
+.day-btn {
+  width:36px; height:36px; border-radius:50%;
+  background:rgba(10,10,10,0.88); border:1.5px solid var(--border);
+  color:var(--muted2); font-family:'Syne',sans-serif; font-size:12px; font-weight:800;
+  cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .15s;
+}
+.day-btn.active { background:var(--accent); border-color:var(--accent); color:#fff; }
+
+/* PROGRESS */
+.progress-wrap {
+  padding:16px 20px; border-bottom:1px solid var(--border); display:none;
+}
+.progress-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+.progress-label { font-family:'Syne',sans-serif; font-size:13px; font-weight:700; }
+.progress-count { font-size:13px; color:var(--muted2); font-weight:500; }
+.pbar-track { height:4px; background:var(--border); border-radius:4px; overflow:hidden; }
+.pbar-fill {
+  height:100%; border-radius:4px;
+  background:linear-gradient(90deg, var(--accent), var(--accent2));
+  transition:width .4s cubic-bezier(.4,0,.2,1);
+}
+
+/* CHECKLIST */
+#checklist { padding:0 20px 100px; }
+
+.empty { text-align:center; padding:80px 20px; color:var(--muted); }
+.empty-icon { font-size:42px; margin-bottom:12px; }
+.empty-text { font-family:'Syne',sans-serif; font-size:15px; font-weight:600; }
+
+.day-group { margin-top:24px; }
+.day-group-head {
+  display:flex; align-items:center; gap:12px;
+  padding-bottom:12px; border-bottom:1px solid var(--border);
+  margin-bottom:8px; cursor:pointer;
+}
+.day-badge {
+  font-family:'Syne',sans-serif; font-size:10px; font-weight:800;
+  letter-spacing:1.5px; text-transform:uppercase;
+  padding:4px 10px; border-radius:6px;
+  background:var(--surface); border:1px solid var(--border); color:var(--muted2);
+  transition:all .2s;
+}
+.day-badge.active-badge { background:var(--accent); border-color:var(--accent); color:#fff; }
+.day-group-title { font-family:'Syne',sans-serif; font-size:15px; font-weight:700; }
+.day-group-theme { font-size:12px; color:var(--muted); margin-left:auto; }
+
+/* STOP CARD (Agrandie pour mobile) */
+.stop-card {
+  display:flex; align-items:flex-start; gap:14px;
+  padding:16px 0; border-bottom:1px solid var(--border);
+  cursor:pointer; transition:opacity .2s; 
+  position:relative;
+}
+.stop-card:last-child { border-bottom:none; }
+.stop-card.done { opacity:.4; }
+.stop-card.done .stop-name { text-decoration:line-through; }
+
+.stop-num {
+  flex-shrink:0; width:30px; height:30px; border-radius:50%;
+  background:var(--surface); border:1.5px solid var(--border);
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Syne',sans-serif; font-size:12px; font-weight:800; color:var(--muted2);
+  transition:all .2s; margin-top:2px;
+}
+.stop-card.done .stop-num { background:var(--green); border-color:var(--green); color:#fff; font-size:14px; }
+
+.stop-body { flex:1; min-width:0; }
+.stop-name { font-family:'Syne',sans-serif; font-size:15px; font-weight:700; margin-bottom:4px; line-height:1.3; }
+.stop-desc { font-size:13px; color:var(--muted2); line-height:1.6; }
+.stop-tags { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+.tag {
+  font-size:10px; letter-spacing:1px; text-transform:uppercase;
+  padding:3px 8px; border-radius:4px; border:1px solid; font-weight:600;
+}
+.tag.food  { border-color:rgba(255,184,0,.35); color:#FFB800; }
+.tag.view  { border-color:rgba(34,197,94,.35); color:#22c55e; }
+.tag.culture { border-color:rgba(99,179,237,.35); color:#63b3ed; }
+.tag.walk  { border-color:rgba(160,174,192,.28); color:#a0aec0; }
+.tag.secret { border-color:rgba(255,77,0,.4); color:var(--accent); }
+
+/* Marker styles */
+.cm { 
+  width:28px; height:28px; border-radius:50%;
+  background:var(--accent,#FF4D00); border:2.5px solid rgba(255,255,255,0.9);
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Syne',sans-serif; font-size:11px; font-weight:800; color:#fff;
+  box-shadow:0 3px 10px rgba(0,0,0,0.6);
+}
+.cm.done-m { background:#22c55e; }
+
+/* COMPLETE BANNER */
+.complete-banner {
+  display:none; margin:16px 0;
+  background:linear-gradient(135deg,#0d1f0d,#0a170a);
+  border:1px solid rgba(34,197,94,0.25); border-radius:12px;
+  padding:20px; text-align:center;
+}
+.complete-banner.show { display:block; animation:popIn .4s cubic-bezier(.34,1.56,.64,1) both; }
+@keyframes popIn { from{transform:scale(.9);opacity:0} to{transform:scale(1);opacity:1} }
+.cb-title { font-family:'Syne',sans-serif; font-size:17px; font-weight:800; color:var(--green); margin-bottom:6px; }
+.cb-sub { font-size:13px; color:#6b9; }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="logo">Paris<span>.</span></div>
+  <div class="lang-group">
+    <button class="lang-btn active" onclick="setLang('fr')">FR</button>
+    <button class="lang-btn" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" onclick="setLang('ko')">한국어</button>
+  </div>
+</div>
+
+<div class="dur-section">
+  <div class="section-label" id="lbl-how-long">Combien de jours ?</div>
+  <div class="dur-pills" id="dur-pills"></div>
+</div>
+
+<div id="map-wrap">
+  <div id="map"></div>
+  <div class="map-stats" id="map-stats">
+    <div class="stat"><div class="stat-val" id="s-km">—</div><div class="stat-key" id="lbl-km">km</div></div>
+    <div class="stat-divider"></div>
+    <div class="stat"><div class="stat-val" id="s-stops">—</div><div class="stat-key" id="lbl-stops">étapes</div></div>
+    <div class="stat-divider"></div>
+    <div class="stat"><div class="stat-val" id="s-time">—</div><div class="stat-key" id="lbl-hours">heures</div></div>
+  </div>
+  <div class="day-btns" id="day-btns"></div>
+</div>
+
+<div class="progress-wrap" id="progress-wrap">
+  <div class="progress-row">
+    <span class="progress-label" id="lbl-progress">Progression</span>
+    <span class="progress-count" id="prog-count">0 / 0</span>
+  </div>
+  <div class="pbar-track"><div class="pbar-fill" id="pbar" style="width:0%"></div></div>
+</div>
+
+<div id="checklist">
+  <div class="empty">
+    <div class="empty-icon">🗺️</div>
+    <div class="empty-text" id="lbl-choose">Choisissez la durée de votre séjour</div>
+  </div>
+</div>
+
+<script>
+// ──────────────────────────────────────────
+// COORDINATES
+// ──────────────────────────────────────────
+const COORDS = {
+  montmartre:   [48.8867, 2.3431],
+  galeries:     [48.8737, 2.3318],
+  opera:        [48.8719, 2.3316],
+  madeleine:    [48.8701, 2.3251],
+  concorde:     [48.8656, 2.3212],
+  champselysees:[48.8698, 2.3079],
+  arcdetriomphe:[48.8738, 2.2950],
+  trocadero:    [48.8637, 2.2890],
+  eiffelview:   [48.8583, 2.2970],
+  eiffel:       [48.8584, 2.2945],
+  seine:        [48.8601, 2.3017],
+  bateaumouche: [48.8636, 2.3051],
+  tuileries:    [48.8638, 2.3322],
+  louvre:       [48.8606, 2.3376],
+  palaisroyal:  [48.8638, 2.3369],
+  invalides:    [48.8556, 2.3124],
+  luxembourg:   [48.8462, 2.3372],
+  notredame:    [48.8530, 2.3499],
+  panachement:  [48.8554, 2.3453],
+};
+
+// ──────────────────────────────────────────
+// ITINERARY STRUCTURE
+// ──────────────────────────────────────────
+const DAYS_STRUCT = {
+  1:[
+    {k:'d1',stops:["montmartre","galeries","opera","madeleine","concorde","tuileries","louvre","seine","eiffel"]}
+  ],
+  2:[
+    {k:'d1',stops:["montmartre","galeries","opera","concorde","champselysees","arcdetriomphe","trocadero","eiffelview","eiffel"]},
+    {k:'d2',stops:["tuileries","louvre","palaisroyal","invalides","luxembourg","notredame","panachement","bateaumouche"]}
+  ],
+  3:[
+    {k:'d1',stops:["montmartre","galeries","opera","madeleine","concorde","tuileries","louvre"]},
+    {k:'d2',stops:["luxembourg","invalides","eiffelview","trocadero","seine","eiffel","bateaumouche"]},
+    {k:'d3',stops:["notredame","panachement","palaisroyal","champselysees","arcdetriomphe"]}
+  ],
+  4:[
+    {k:'d1',stops:["montmartre","galeries","opera","madeleine"]},
+    {k:'d2',stops:["concorde","champselysees","arcdetriomphe","trocadero","eiffelview","eiffel","bateaumouche"]},
+    {k:'d3',stops:["tuileries","louvre","palaisroyal"]},
+    {k:'d4',stops:["invalides","luxembourg","notredame","panachement","seine"]}
+  ],
+  5:[
+    {k:'d1',stops:["montmartre","galeries","opera","madeleine"]},
+    {k:'d2',stops:["concorde","champselysees","arcdetriomphe","trocadero","eiffelview","eiffel"]},
+    {k:'d3',stops:["tuileries","louvre","palaisroyal"]},
+    {k:'d4',stops:["invalides","luxembourg","notredame","panachement","bateaumouche"]},
+    {k:'d5',stops:["seine","eiffelview","panachement"]}
+  ]
+};
+
+// ──────────────────────────────────────────
+// TRANSLATIONS (Croissant supprimé)
+// ──────────────────────────────────────────
+const L10N = {
+  fr:{
+    how_long:"Combien de jours ?", km:"km", stops:"étapes", hours:"heures",
+    progress:"Progression", choose:"Choisissez la durée de votre séjour",
+    ok_title:"Journée accomplie ! 🎉", ok_sub:"Vous avez tout vu. Paris vous appartient.",
+    pills:["1 jour — L'essentiel","2 jours — Le classique","3 jours — Paris complet","4 jours — Paris profond","5+ jours — Vivre Paris"],
+    tags:{food:"À manger",view:"Belle vue",culture:"Culture",walk:"Ballade",secret:"Secret"},
+    day_titles:{
+      d1:["Paris en une journée","De Montmartre à la Tour Eiffel"],
+      d2:["Rive Droite","Montmartre → Champs-Élysées → Tour Eiffel"],
+      d3:["Rive Gauche","Louvre → Invalides → Notre-Dame"],
+      d4:["Île de la Cité & Secrets","Trésors cachés"],
+      d5:["Journée libre","Flânerie et secrets"]
+    },
+    stops:{
+      montmartre:   {n:"Montmartre",d:"Sacré-Cœur, Mur des Je t'aime, Parc de la Turlure (meilleure vue !), Place des Artistes. Partir tôt.",t:["view","walk","secret"]},
+      galeries:     {n:"Galeries Lafayette + Rooftop",d:"Rooftop gratuit. Vue imprenable sur l'Opéra Garnier et les Grands Boulevards.",t:["view"]},
+      opera:        {n:"Opéra Garnier",d:"L'extérieur est grandiose. Billet visite pour les intérieurs dorés.",t:["culture"]},
+      madeleine:    {n:"La Madeleine",d:"Temple néoclassique surprenant. La rue Royale qui y mène est magnifique.",t:["walk","culture"]},
+      concorde:     {n:"Place de la Concorde",d:"L'obélisque de Louxor, la Seine derrière. L'une des plus grandes places du monde.",t:["walk","view"]},
+      champselysees:{n:"Champs-Élysées",d:"Montez depuis la Concorde. Café ou pain au chocolat dans un bistrot de l'avenue.",t:["walk","food"]},
+      arcdetriomphe:{n:"Arc de Triomphe",d:"Montez au sommet pour la vue étoilée sur 12 avenues. Réservez en avance.",t:["culture","view"]},
+      trocadero:    {n:"Trocadéro",d:"Le spot photo face à la Tour Eiffel. Les jardins descendent vers la Seine.",t:["view"]},
+      eiffelview:   {n:"🤫 Avenue des Camoëns",d:"La photo parfaite de la Tour Eiffel sans la foule. Secret très bien gardé.",t:["view","secret"]},
+      eiffel:       {n:"Tour Eiffel",d:"Réservez ! Le scintillement toutes les heures après la nuit tombée — ne le ratez pas.",t:["culture","view"]},
+      seine:        {n:"Bords de Seine",d:"Promenade le long de la Seine vers la Tour Eiffel via l'avenue Bourdonnais.",t:["walk","view"]},
+      bateaumouche: {n:"Bateau Mouche",d:"1h sur la Seine. Idéal en soirée pour les monuments illuminés.",t:["view"]},
+      tuileries:    {n:"Jardin des Tuileries",d:"Entre la Concorde et le Louvre. Vue sur la Tour Eiffel au loin.",t:["walk","view"]},
+      louvre:       {n:"Musée du Louvre",d:"Ne pas tout voir ! Joconde, Vénus de Milo, Victoire de Samothrace. 2h max.",t:["culture"]},
+      palaisroyal:  {n:"Palais Royal & Jardins",d:"Colonnes de Buren et galeries couvertes. Un coin de calme luxueux.",t:["walk","secret"]},
+      invalides:    {n:"Invalides — Tombeau de Napoléon",d:"Dôme doré, tombeau de Napoléon dans l'église Saint-Louis.",t:["culture"]},
+      luxembourg:   {n:"Jardin du Luxembourg",d:"Le plus beau jardin de Paris. Fontaine Médicis, ruches, théâtre de marionnettes.",t:["walk","secret"]},
+      notredame:    {n:"Notre-Dame de Paris",d:"Rouverture en 2024. La façade gothique et l'île de la Cité autour.",t:["culture","walk"]},
+      panachement:  {n:"Sainte-Chapelle",d:"Sous-estimée ! Vitraux gothiques du XIIIe siècle parmi les plus beaux au monde.",t:["culture","secret"]},
+    }
+  },
+  en:{
+    how_long:"How many days?", km:"km", stops:"stops", hours:"hours",
+    progress:"Progress", choose:"Choose your stay duration",
+    ok_title:"Day complete! 🎉", ok_sub:"You've seen it all. Paris is yours.",
+    pills:["1 day — Essentials","2 days — Classic","3 days — Full Paris","4 days — Deep Paris","5+ days — Living Paris"],
+    tags:{food:"Eat this",view:"Great view",culture:"Culture",walk:"Walk",secret:"Hidden gem"},
+    day_titles:{
+      d1:["Paris in One Day","From Montmartre to the Eiffel Tower"],
+      d2:["Right Bank","Montmartre → Champs-Élysées → Eiffel Tower"],
+      d3:["Left Bank","Louvre → Invalides → Notre-Dame"],
+      d4:["Île de la Cité & Secrets","Hidden treasures"],
+      d5:["Free Day","Wandering and secrets"]
+    },
+    stops:{
+      montmartre:   {n:"Montmartre",d:"Sacré-Cœur, Wall of Love, Parc de la Turlure (best view!), Place des Artistes. Go early.",t:["view","walk","secret"]},
+      galeries:     {n:"Galeries Lafayette + Rooftop",d:"Free rooftop. Stunning view over Opéra Garnier and the Grand Boulevards.",t:["view"]},
+      opera:        {n:"Opéra Garnier",d:"The exterior is magnificent. Buy a visit ticket for the gilded interiors.",t:["culture"]},
+      madeleine:    {n:"La Madeleine",d:"Surprising neoclassical temple. Rue Royale leading up to it is gorgeous.",t:["walk","culture"]},
+      concorde:     {n:"Place de la Concorde",d:"The Luxor Obelisk, Seine behind. One of the world's largest squares.",t:["walk","view"]},
+      champselysees:{n:"Champs-Élysées",d:"Walk up from la Concorde. Coffee or pain au chocolat at a bistro.",t:["walk","food"]},
+      arcdetriomphe:{n:"Arc de Triomphe",d:"Climb to the top for the star-shaped view over 12 avenues. Book ahead.",t:["culture","view"]},
+      trocadero:    {n:"Trocadéro",d:"The classic photo spot facing the Eiffel Tower. Gardens descend to the Seine.",t:["view"]},
+      eiffelview:   {n:"🤫 Avenue des Camoëns",d:"Perfect Eiffel Tower photo without the crowds. A very well-kept secret.",t:["view","secret"]},
+      eiffel:       {n:"Eiffel Tower",d:"Book ahead! Sparkling light show every hour after dark — don't miss it.",t:["culture","view"]},
+      seine:        {n:"Seine Riverbanks",d:"Walk along the Seine towards the Eiffel Tower via Avenue Bourdonnais.",t:["walk","view"]},
+      bateaumouche: {n:"Bateau Mouche",d:"1hr Seine cruise. Perfect in the evening for illuminated monuments.",t:["view"]},
+      tuileries:    {n:"Jardin des Tuileries",d:"Between la Concorde and the Louvre. Eiffel Tower in the distance.",t:["walk","view"]},
+      louvre:       {n:"Musée du Louvre",d:"Don't try to see everything! Mona Lisa, Venus de Milo, Winged Victory. 2h max.",t:["culture"]},
+      palaisroyal:  {n:"Palais Royal & Gardens",d:"Buren columns and covered galleries. A pocket of luxurious calm.",t:["walk","secret"]},
+      invalides:    {n:"Les Invalides — Napoleon's Tomb",d:"Golden dome, Napoleon's tomb in Saint-Louis church. Impressive.",t:["culture"]},
+      luxembourg:   {n:"Jardin du Luxembourg",d:"Paris's most beautiful garden. Medici Fountain, beehives, puppet theatre.",t:["walk","secret"]},
+      notredame:    {n:"Notre-Dame de Paris",d:"Reopened 2024. Gothic façade and the Île de la Cité.",t:["culture","walk"]},
+      panachement:  {n:"Sainte-Chapelle",d:"Underrated gem! 13th-century Gothic stained glass among the world's finest.",t:["culture","secret"]},
+    }
+  },
+  ko:{
+    how_long:"며칠 머무시나요?", km:"km", stops:"장소", hours:"시간",
+    progress:"진행 상황", choose:"머무는 기간을 선택하세요",
+    ok_title:"하루 완주! 🎉", ok_sub:"모두 보셨어요. 파리가 당신 것입니다.",
+    pills:["1일 — 핵심만","2일 — 클래식","3일 — 파리 완전 정복","4일 — 깊은 파리","5일+ — 파리 살기"],
+    tags:{food:"먹거리",view:"뷰포인트",culture:"문화",walk:"산책",secret:"숨은 명소"},
+    day_titles:{
+      d1:["하루 동안의 파리","몽마르트르에서 에펠탑까지"],
+      d2:["우안 (센 강 북쪽)","몽마르트르 → 샹젤리제 → 에펠탑"],
+      d3:["좌안 (센 강 남쪽)","루브르 → 앵발리드 → 노트르담"],
+      d4:["시테 섬 & 숨은 명소","숨겨진 보석들"],
+      d5:["자유 시간","산책과 비밀 장소들"]
+    },
+    stops:{
+      montmartre:   {n:"몽마르트르",d:"사크레쾨르, 사랑해 벽, 튀를뤼르 공원(최고 뷰!), 예술가 광장. 일찍 출발.",t:["view","walk","secret"]},
+      galeries:     {n:"갤러리 라파예트 + 루프탑",d:"루프탑 무료. 오페라 가르니에와 그랑 불르바르 전망 최고.",t:["view"]},
+      opera:        {n:"오페라 가르니에",d:"외관이 웅장합니다. 내부는 입장권 구매 필요.",t:["culture"]},
+      madeleine:    {n:"마들렌 성당",d:"놀라운 신고전주의 신전. 루아얄 거리가 아름답습니다.",t:["walk","culture"]},
+      concorde:     {n:"콩코르드 광장",d:"룩소르 오벨리스크, 뒤편 센 강. 세계 최대 광장 중 하나.",t:["walk","view"]},
+      champselysees:{n:"샹젤리제 거리",d:"콩코르드에서 걸어 올라가세요. 비스트로에서 커피 또는 팡오쇼콜라.",t:["walk","food"]},
+      arcdetriomphe:{n:"개선문",d:"꼭대기에서 12개 대로 별 모양 뷰. 미리 예약 필수.",t:["culture","view"]},
+      trocadero:    {n:"트로카데로",d:"에펠탑 클래식 포토 스팟. 정원이 센 강까지 내려갑니다.",t:["view"]},
+      eiffelview:   {n:"🤫 카모엥 거리",d:"인파 없이 완벽한 에펠탑 사진. 아주 잘 지켜진 비밀.",t:["view","secret"]},
+      eiffel:       {n:"에펠탑",d:"미리 예약! 밤마다 매 시 정각 반짝이는 조명 쇼 — 꼭 보세요.",t:["culture","view"]},
+      seine:        {n:"센 강변",d:"부르도네 거리를 따라 에펠탑까지 센 강변 산책.",t:["walk","view"]},
+      bateaumouche: {n:"바토 무슈 (유람선)",d:"1시간 센 강 유람. 야경이 아름다운 저녁에 추천.",t:["view"]},
+      tuileries:    {n:"튈르리 정원",d:"콩코르드와 루브르 사이. 저 멀리 에펠탑.",t:["walk","view"]},
+      louvre:       {n:"루브르 박물관",d:"다 보려 하지 마세요! 모나리자, 밀로의 비너스, 니케. 최대 2시간.",t:["culture"]},
+      palaisroyal:  {n:"팔레 루아얄 & 정원",d:"뷔렌의 기둥과 아케이드 갤러리. 고급스러운 평화.",t:["walk","secret"]},
+      invalides:    {n:"앵발리드 — 나폴레옹 묘",d:"황금 돔, 생루이 교회의 나폴레옹 묘.",t:["culture"]},
+      luxembourg:   {n:"뤽상부르 공원",d:"파리 최고의 공원. 메디치 분수, 벌통, 인형극장.",t:["walk","secret"]},
+      notredame:    {n:"노트르담 대성당",d:"2024년 재개관. 고딕 파사드와 시테 섬.",t:["culture","walk"]},
+      panachement:  {n:"생트 샤펠",d:"과소평가 금지! 13세기 고딕 스테인드글라스, 세계 최고 수준.",t:["culture","secret"]},
+    }
+  }
+};
+
+// ──────────────────────────────────────────
+// STATE
+// ──────────────────────────────────────────
+let curLang = 'fr';
+let numDays = null;
+let activeDayIdx = 0;
+let checked = {};
+let leafMap = null, markersLG = null, routeLG = null;
+
+// ──────────────────────────────────────────
+// MAP
+// ──────────────────────────────────────────
+function initMap() {
+  if (leafMap) return;
+  leafMap = L.map('map', {zoomControl:false, attributionControl:false}).setView([48.862,2.333],13);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(leafMap);
+  markersLG = L.layerGroup().addTo(leafMap);
+  routeLG   = L.layerGroup().addTo(leafMap);
+}
+
+function drawDay(dayIdx) {
+  if (!leafMap) return;
+  const struct = DAYS_STRUCT[numDays];
+  if (!struct) return;
+  const day = struct[dayIdx];
+  if (!day) return;
+
+  markersLG.clearLayers();
+  routeLG.clearLayers();
+
+  const pts = day.stops.map(k => COORDS[k]).filter(Boolean);
+
+  if (pts.length > 1) {
+    L.polyline(pts,{color:'#FF4D00',weight:8,opacity:0.12,lineCap:'round',lineJoin:'round'}).addTo(routeLG);
+    L.polyline(pts,{color:'#FF4D00',weight:3.5,opacity:0.9,lineCap:'round',lineJoin:'round'}).addTo(routeLG);
+    L.polyline(pts,{color:'#FFB800',weight:1.5,opacity:0.45,lineCap:'round',dashArray:'5 14'}).addTo(routeLG);
+  }
+
+  day.stops.forEach((k,i) => {
+    const c = COORDS[k]; if (!c) return;
+    const done = checked[k];
+    const el = document.createElement('div');
+    el.className = 'cm' + (done ? ' done-m' : '');
+    el.textContent = done ? '✓' : (i+1);
+    L.marker(c, {icon:L.divIcon({html:el.outerHTML,className:'',iconSize:[28,28],iconAnchor:[14,14]})}).addTo(markersLG);
+  });
+
+  if (pts.length) leafMap.fitBounds(L.latLngBounds(pts),{padding:[35,35]});
+
+  let km = 0;
+  for (let i=1;i<pts.length;i++) km += haversine(pts[i-1],pts[i]);
+  document.getElementById('s-km').textContent = km.toFixed(1);
+  document.getElementById('s-stops').textContent = pts.length;
+  document.getElementById('s-time').textContent = '~'+ Math.round(pts.length*0.7 + km*0.12) +'h';
+  document.getElementById('map-stats').style.display = 'flex';
+}
+
+function haversine([la1,lo1],[la2,lo2]) {
+  const R=6371,d=Math.PI/180;
+  const dLa=(la2-la1)*d, dLo=(lo2-lo1)*d;
+  const a=Math.sin(dLa/2)**2+Math.cos(la1*d)*Math.cos(la2*d)*Math.sin(dLo/2)**2;
+  return R*2*Math.asin(Math.sqrt(a));
+}
+
+// ──────────────────────────────────────────
+// RENDER
+// ──────────────────────────────────────────
+function buildPills() {
+  const c = L10N[curLang];
+  document.getElementById('dur-pills').innerHTML = c.pills.map((txt,i)=>
+    `<div class="dur-pill${numDays===i+1?' active':''}" onclick="selectDuration(${i+1})">${txt}</div>`
+  ).join('');
+}
+
+function selectDuration(d) {
+  numDays = d; activeDayIdx = 0; checked = {};
+  buildPills();
+  initMap();
+  renderAll();
+}
+
+function renderAll() {
+  renderDayBtns();
+  drawDay(activeDayIdx);
+  renderChecklist();
+  updateProgress();
+}
+
+function renderDayBtns() {
+  const el = document.getElementById('day-btns');
+  const struct = DAYS_STRUCT[numDays]||[];
+  if (struct.length <= 1) { el.style.display='none'; return; }
+  el.style.display='flex';
+  el.innerHTML = struct.map((_,i)=>
+    `<button class="day-btn${i===activeDayIdx?' active':''}" onclick="switchDay(${i})">J${i+1}</button>`
+  ).join('');
+}
+
+function switchDay(idx) {
+  activeDayIdx = idx;
+  renderDayBtns();
+  drawDay(idx);
+  renderChecklist();
+  updateProgress();
+}
+
+function renderChecklist() {
+  const c = L10N[curLang];
+  const struct = DAYS_STRUCT[numDays];
+  if (!struct) return;
+
+  let html = '';
+  struct.forEach((day, di) => {
+    const isActive = di === activeDayIdx;
+    const dt = c.day_titles[day.k] || ['Jour',''];
+    html += `<div class="day-group">
+      <div class="day-group-head" onclick="switchDay(${di})">
+        <span class="day-badge${isActive?' active-badge':''}">Jour ${di+1}</span>
+        <span class="day-group-title">${dt[0]}</span>
+        <span class="day-group-theme">${dt[1]}</span>
+      </div>`;
+
+    if (isActive) {
+      day.stops.forEach((key, si) => {
+        const s = c.stops[key]; if (!s) return;
+        const done = checked[key];
+        html += `<div class="stop-card${done?' done':''}" onclick="toggle('${key}')">
+          <div class="stop-num">${done ? '✓' : si+1}</div>
+          <div class="stop-body">
+            <div class="stop-name">${s.n}</div>
+            <div class="stop-desc">${s.d}</div>
+            <div class="stop-tags">${(s.t||[]).map(t=>`<span class="tag ${t}">${c.tags[t]||t}</span>`).join('')}</div>
+          </div>
+        </div>`;
+      });
+
+      const dayDone = day.stops.every(k => checked[k]);
+      html += `<div class="complete-banner${dayDone?' show':''}">
+        <div class="cb-title">${c.ok_title}</div>
+        <div class="cb-sub">${c.ok_sub}</div>
+      </div>`;
+    }
+
+    html += `</div>`;
+  });
+
+  document.getElementById('checklist').innerHTML = html;
+  document.getElementById('progress-wrap').style.display = 'block';
+}
+
+function toggle(key) {
+  checked[key] = !checked[key];
+  renderChecklist();
+  updateProgress();
+  drawDay(activeDayIdx);
+}
+
+function updateProgress() {
+  const struct = DAYS_STRUCT[numDays]; if (!struct) return;
+  let total=0, done=0;
+  struct.forEach(d => d.stops.forEach(k => { total++; if(checked[k]) done++; }));
+  document.getElementById('prog-count').textContent = `${done} / ${total}`;
+  document.getElementById('pbar').style.width = (total ? Math.round(done/total*100) : 0) + '%';
+}
+
+// ──────────────────────────────────────────
+// LANGUAGE (Mise à jour instantanée ajoutée)
+// ──────────────────────────────────────────
+function setLang(l) {
+  curLang = l;
+  document.querySelectorAll('.lang-btn').forEach(b => {
+    b.classList.toggle('active',
+      (l==='fr'&&b.textContent==='FR')||(l==='en'&&b.textContent==='EN')||(l==='ko'&&b.textContent==='한국어'));
+  });
+  const c = L10N[l];
+  document.getElementById('lbl-how-long').textContent = c.how_long;
+  document.getElementById('lbl-km').textContent = c.km;
+  document.getElementById('lbl-stops').textContent = c.stops;
+  document.getElementById('lbl-hours').textContent = c.hours;
+  document.getElementById('lbl-progress').textContent = c.progress;
+  document.getElementById('lbl-choose').textContent = c.choose;
+  
+  buildPills();
+  
+  // Si l'utilisateur a déjà choisi une durée, on redessine tout instantanément
+  if (numDays) { 
+    renderAll(); 
+  }
+}
+
+// ──────────────────────────────────────────
+// BOOT
+// ──────────────────────────────────────────
+window.addEventListener('load', () => {
+  buildPills();
+  initMap();
+  leafMap.setView([48.862,2.333],13);
+});
+</script>
+</body>
+</html>
