@@ -38,19 +38,19 @@ body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); 
 }
 .lang-btn.active { background:var(--accent); border-color:var(--accent); color:#fff; }
 
-/* DURATION - Optimisé Mobile (Liste verticale au lieu du scroll) */
+/* DURATION - Transformé en grande liste verticale pour mobile */
 .dur-section { padding:20px 20px 0; }
 .section-label {
   font-family:'Syne',sans-serif; font-size:12px; font-weight:700;
   letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); margin-bottom:14px;
 }
 .dur-pills { 
-  display:flex; flex-direction:column; gap:8px; padding-bottom:10px; 
+  display:flex; flex-direction:column; gap:10px; padding-bottom:10px; 
 }
 .dur-pill {
   background:var(--surface); border:1px solid var(--border);
   color:var(--muted2); font-family:'Syne',sans-serif; font-size:14px; font-weight:700;
-  padding:14px 20px; border-radius:10px; cursor:pointer; transition:all .2s;
+  padding:16px 20px; border-radius:12px; cursor:pointer; transition:all .2s;
   text-align: left;
 }
 .dur-pill.active { background:var(--accent); border-color:var(--accent); color:#fff; }
@@ -71,8 +71,8 @@ body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); 
   padding:12px 16px; display:none; gap:20px; align-items:center;
 }
 .stat { text-align:center; }
-/* Police Inter pour les chiffres pour éviter l'effet "aplati" */
-.stat-val { font-family:'Inter',sans-serif; font-size:18px; font-weight:700; color:var(--accent); line-height:1; letter-spacing:-0.5px; }
+/* Police Inter pour les chiffres des statistiques */
+.stat-val { font-family:'Inter',sans-serif; font-size:19px; font-weight:700; color:var(--accent); line-height:1; letter-spacing:-0.5px; }
 .stat-key { font-size:10px; font-family:'Syne',sans-serif; letter-spacing:1px; text-transform:uppercase; color:var(--muted); margin-top:4px; font-weight:700; }
 .stat-divider { width:1px; height:32px; background:var(--border); }
 
@@ -137,9 +137,9 @@ body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); 
 .stop-card.done { opacity:.4; }
 .stop-card.done .stop-name { text-decoration:line-through; }
 
-/* Police Inter pour les chiffres des étapes */
+/* Police Inter pour les numéros de la liste */
 .stop-num {
-  flex-shrink:0; width:30px; height:30px; border-radius:50%;
+  flex-shrink:0; width:32px; height:32px; border-radius:50%;
   background:var(--surface); border:1.5px solid var(--border);
   display:flex; align-items:center; justify-content:center;
   font-family:'Inter',sans-serif; font-size:13px; font-weight:700; color:var(--muted2);
@@ -161,7 +161,7 @@ body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); 
 .tag.walk  { border-color:rgba(160,174,192,.28); color:#a0aec0; }
 .tag.secret { border-color:rgba(255,77,0,.4); color:var(--accent); }
 
-/* Marker styles - Police Inter pour ne pas aplatir */
+/* Marker styles - Police Inter pour les bulles sur la carte */
 .cm { 
   width:28px; height:28px; border-radius:50%;
   background:var(--accent,#FF4D00); border:2.5px solid rgba(255,255,255,0.9);
@@ -289,7 +289,7 @@ const DAYS_STRUCT = {
 // ──────────────────────────────────────────
 const L10N = {
   fr:{
-    how_long:"Combien de jours ?", km:"km", stops:"étapes", hours:"heures",
+    how_long:"Combien de jours ?", km:"km", stops_label:"étapes", hours:"heures",
     progress:"Progression", choose:"Choisissez la durée de votre séjour",
     ok_title:"Journée accomplie ! 🎉", ok_sub:"Vous avez tout vu. Paris vous appartient.",
     dayFmt: n => `Jour ${n}`, dayBtnFmt: n => `J${n}`,
@@ -325,7 +325,7 @@ const L10N = {
     }
   },
   en:{
-    how_long:"How many days?", km:"km", stops:"stops", hours:"hours",
+    how_long:"How many days?", km:"km", stops_label:"stops", hours:"hours",
     progress:"Progress", choose:"Choose your stay duration",
     ok_title:"Day complete! 🎉", ok_sub:"You've seen it all. Paris is yours.",
     dayFmt: n => `Day ${n}`, dayBtnFmt: n => `D${n}`,
@@ -361,7 +361,7 @@ const L10N = {
     }
   },
   ko:{
-    how_long:"며칠 머무시나요?", km:"km", stops:"장소", hours:"시간",
+    how_long:"며칠 머무시나요?", km:"km", stops_label:"장소", hours:"시간",
     progress:"진행 상황", choose:"머무는 기간을 선택하세요",
     ok_title:"하루 완주! 🎉", ok_sub:"모두 보셨어요. 파리가 당신 것입니다.",
     dayFmt: n => `${n}일차`, dayBtnFmt: n => `${n}일`,
@@ -562,30 +562,30 @@ function updateProgress() {
 }
 
 // ──────────────────────────────────────────
-// LANGUAGE (Refonte pour forcer le rafraîchissement global)
+// LANGUAGE
 // ──────────────────────────────────────────
 function setLang(l) {
   curLang = l;
   
-  // Met à jour les boutons visuellement
   document.querySelectorAll('.lang-btn').forEach(b => {
     b.classList.toggle('active',
       (l==='fr'&&b.textContent==='FR')||(l==='en'&&b.textContent==='EN')||(l==='ko'&&b.textContent==='한국어'));
   });
   
-  // Met à jour les textes statiques en haut
   const c = L10N[l];
   document.getElementById('lbl-how-long').textContent = c.how_long;
   document.getElementById('lbl-km').textContent = c.km;
-  document.getElementById('lbl-stops').textContent = c.stops;
+  document.getElementById('lbl-stops').textContent = c.stops_label;
   document.getElementById('lbl-hours').textContent = c.hours;
   document.getElementById('lbl-progress').textContent = c.progress;
-  document.getElementById('lbl-choose').textContent = c.choose;
+
+  const elChoose = document.getElementById('lbl-choose');
+  if (elChoose) {
+    elChoose.textContent = c.choose;
+  }
   
-  // Reconstruit la liste des durées
   buildPills();
   
-  // Si un parcours est en cours, force TOUT à se redessiner
   if (numDays !== null) { 
     renderAll();
   }
