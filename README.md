@@ -21,6 +21,6 @@ A lightweight web app designed to help travelers discover Paris from their phone
 
 This project is completely static. It can be hosted quickly and for free via GitHub Pages by enabling it on the main branch in the repository settings.
 
-[Paris guide : ](https://gabriel-casarotto.github.io/Paris-Guide/)
+Here's the link : [Paris guide website](https://gabriel-casarotto.github.io/Paris-Guide/)
 
 ![alt image](https://github.com/gabriel-casarotto/Paris-Guide/blob/main/paris.png?raw=true)
