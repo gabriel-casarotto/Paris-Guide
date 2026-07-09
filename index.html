@@ -226,6 +226,55 @@ body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); 
 .contact-btn.phone {
   background:var(--surface); border:1px solid var(--border); color:var(--text);
 }
+
+/* HELP BUTTON */
+.help-btn-top {
+  display:flex; align-items:center; justify-content:center;
+  width:32px; height:32px; flex-shrink:0;
+  background:var(--surface); border:1px solid var(--border); color:var(--text);
+  font-family:'Syne',sans-serif; font-size:14px; font-weight:800;
+  border-radius:50%; cursor:pointer; transition:all .15s;
+}
+.help-btn-top:active { background:var(--accent); border-color:var(--accent); color:#fff; }
+
+/* ONBOARDING OVERLAY */
+.onboard-overlay {
+  display:none; position:fixed; inset:0; z-index:3000;
+  background:rgba(6,6,6,0.86); backdrop-filter:blur(6px);
+  padding:20px; align-items:flex-end; justify-content:center;
+}
+.onboard-overlay.show { display:flex; animation:fadeIn .25s ease both; }
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+.onboard-card {
+  width:100%; max-width:440px; max-height:88vh; overflow-y:auto;
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:20px 20px 12px 12px; padding:24px 22px 22px;
+  animation:slideUp .3s cubic-bezier(.34,1.2,.64,1) both;
+}
+@keyframes slideUp { from{transform:translateY(30px);opacity:0} to{transform:translateY(0);opacity:1} }
+.onboard-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
+.onboard-title { font-family:'Syne',sans-serif; font-size:18px; font-weight:800; }
+.onboard-close {
+  width:30px; height:30px; border-radius:50%; flex-shrink:0;
+  background:var(--bg); border:1px solid var(--border); color:var(--muted2);
+  font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center;
+}
+.onboard-steps { display:flex; flex-direction:column; gap:16px; margin-bottom:20px; }
+.onboard-step { display:flex; gap:14px; align-items:flex-start; }
+.onboard-step-num {
+  flex-shrink:0; width:30px; height:30px; border-radius:9px;
+  background:linear-gradient(135deg,#FF4D00,#FFB800);
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Syne',sans-serif; font-size:14px; font-weight:800; color:#fff;
+}
+.onboard-step-body { flex:1; }
+.onboard-step-title { font-family:'Syne',sans-serif; font-size:14px; font-weight:700; margin-bottom:3px; }
+.onboard-step-text { font-size:13px; color:var(--muted2); line-height:1.55; }
+.onboard-cta {
+  width:100%; padding:14px; border:none; border-radius:12px; cursor:pointer;
+  background:linear-gradient(135deg,#FF4D00,#FFB800); color:#fff;
+  font-family:'Syne',sans-serif; font-size:14px; font-weight:800; letter-spacing:.3px;
+}
 </style>
 </head>
 <body>
@@ -237,11 +286,23 @@ body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); 
       <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2c2.717 0 3.056.01 4.122.06 1.065.05 1.79.217 2.428.465.66.256 1.216.6 1.772 1.153a4.908 4.908 0 0 1 1.153 1.772c.247.637.415 1.363.465 2.428.048 1.066.06 1.405.06 4.122 0 2.717-.01 3.056-.06 4.122-.05 1.065-.218 1.79-.465 2.428a4.883 4.883 0 0 1-1.153 1.772 4.915 4.915 0 0 1-1.772 1.153c-.637.247-1.363.415-2.428.465-1.066.048-1.405.06-4.122.06-2.717 0-3.056-.012-4.122-.06-1.065-.05-1.79-.218-2.428-.465a4.89 4.89 0 0 1-1.772-1.153 4.904 4.904 0 0 1-1.153-1.772c-.248-.637-.415-1.363-.465-2.428C2.013 15.056 2 14.717 2 12c0-2.717.01-3.056.06-4.122.05-1.066.217-1.79.465-2.428a4.88 4.88 0 0 1 1.153-1.772A4.897 4.897 0 0 1 5.45 2.525c.638-.248 1.362-.415 2.428-.465C8.944 2.012 9.283 2 12 2Zm0 5a5 5 0 1 0 0 10 5 5 0 0 0 0-10Zm0 8.25a3.25 3.25 0 1 1 0-6.5 3.25 3.25 0 0 1 0 6.5Zm5.5-9.6a1.15 1.15 0 1 1-2.3 0 1.15 1.15 0 0 1 2.3 0Z" fill="currentColor"/></svg>
       <span id="insta-btn-label">Insta</span>
     </a>
+    <button class="help-btn-top" onclick="showOnboarding()" aria-label="Aide">?</button>
     <div class="lang-group">
       <button class="lang-btn active" onclick="setLang('fr')">FR</button>
       <button class="lang-btn" onclick="setLang('en')">EN</button>
       <button class="lang-btn" onclick="setLang('ko')">한국어</button>
     </div>
+  </div>
+</div>
+
+<div class="onboard-overlay" id="onboard-overlay">
+  <div class="onboard-card">
+    <div class="onboard-head">
+      <div class="onboard-title" id="onboard-title">Comment ça marche ?</div>
+      <button class="onboard-close" onclick="hideOnboarding()">✕</button>
+    </div>
+    <div class="onboard-steps" id="onboard-steps"></div>
+    <button class="onboard-cta" onclick="hideOnboarding()" id="onboard-cta">C'est parti !</button>
   </div>
 </div>
 
@@ -365,6 +426,13 @@ const L10N = {
     contact_text:"Si vous êtes sur Paris quelques jours, n'hésitez pas à me contacter directement sur Instagram ou par téléphone.",
     contact_insta:"@gotagab sur Instagram",
     contact_phone:"+33 7 77 75 51 93",
+    onboard_title:"Comment ça marche ?",
+    onboard_cta:"C'est parti !",
+    onboard_steps:[
+      {t:"Choisissez la durée", d:"Sélectionnez le nombre de jours de votre séjour en haut de la page (1 à 5+ jours)."},
+      {t:"Naviguez entre les jours", d:"Si votre séjour dure plusieurs jours, des boutons J1, J2, J3... apparaissent en haut à droite de la carte. Cliquez dessus pour changer de journée, sinon vous ne verrez que le Jour 1 !"},
+      {t:"Cochez ce que vous avez vu", d:"Cliquez sur un lieu dans la liste pour le marquer comme visité. Votre progression s'affiche en % juste au-dessus de la liste."}
+    ],
     day_titles:{
       d1:["Paris en une journée","De Montmartre à la Tour Eiffel"],
       d2:["Rive Droite","Montmartre → Champs-Élysées → Tour Eiffel"],
@@ -406,6 +474,13 @@ const L10N = {
     contact_text:"If you're in Paris for a few days, feel free to message me directly on Instagram or by phone.",
     contact_insta:"@gotagab on Instagram",
     contact_phone:"+33 7 77 75 51 93",
+    onboard_title:"How does this work?",
+    onboard_cta:"Let's go!",
+    onboard_steps:[
+      {t:"Choose your trip length", d:"Pick how many days you're staying at the top of the page (1 to 5+ days)."},
+      {t:"Switch between days", d:"If your trip spans several days, D1, D2, D3... buttons appear at the top right of the map. Tap them to switch days — otherwise you'll only see Day 1!"},
+      {t:"Check off what you've seen", d:"Tap a place in the list to mark it as visited. Your progress shows as a % right above the list."}
+    ],
     day_titles:{
       d1:["Paris in One Day","From Montmartre to the Eiffel Tower"],
       d2:["Right Bank","Montmartre → Champs-Élysées → Eiffel Tower"],
@@ -447,6 +522,13 @@ const L10N = {
     contact_text:"파리에 며칠 머무신다면, 인스타그램이나 전화로 편하게 직접 연락 주세요.",
     contact_insta:"인스타그램 @gotagab",
     contact_phone:"+33 7 77 75 51 93",
+    onboard_title:"이용 방법 안내",
+    onboard_cta:"시작하기",
+    onboard_steps:[
+      {t:"체류 기간을 선택하세요", d:"페이지 상단에서 며칠 머무는지 선택하세요 (1일 ~ 5일 이상)."},
+      {t:"일차별로 이동하세요", d:"여러 날 머무는 경우, 지도 오른쪽 상단에 1일, 2일, 3일... 버튼이 나타납니다. 버튼을 눌러 날짜를 바꾸세요. 누르지 않으면 1일차만 보입니다!"},
+      {t:"방문한 곳을 체크하세요", d:"목록에서 장소를 눌러 방문 완료로 표시하세요. 목록 위에 진행률(%)이 표시됩니다."}
+    ],
     day_titles:{
       d1:["하루 동안의 파리","몽마르트르에서 에펠탑까지"],
       d2:["우안 (센 강 북쪽)","몽마르트르 → 샹젤리제 → 에펠탑"],
@@ -642,6 +724,34 @@ function updateProgress() {
 }
 
 // ──────────────────────────────────────────
+// ONBOARDING
+// ──────────────────────────────────────────
+function renderOnboarding() {
+  const c = L10N[curLang];
+  document.getElementById('onboard-title').textContent = c.onboard_title;
+  document.getElementById('onboard-cta').textContent = c.onboard_cta;
+  document.getElementById('onboard-steps').innerHTML = c.onboard_steps.map((s,i) => `
+    <div class="onboard-step">
+      <div class="onboard-step-num">${i+1}</div>
+      <div class="onboard-step-body">
+        <div class="onboard-step-title">${s.t}</div>
+        <div class="onboard-step-text">${s.d}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function showOnboarding() {
+  renderOnboarding();
+  document.getElementById('onboard-overlay').classList.add('show');
+  try { localStorage.setItem('paris_onboarded', '1'); } catch(e) {}
+}
+
+function hideOnboarding() {
+  document.getElementById('onboard-overlay').classList.remove('show');
+}
+
+// ──────────────────────────────────────────
 // LANGUAGE
 // ──────────────────────────────────────────
 function setLang(l) {
@@ -669,6 +779,7 @@ function setLang(l) {
   document.getElementById('contact-text').textContent = c.contact_text;
   document.getElementById('contact-insta-label').textContent = c.contact_insta;
   document.getElementById('contact-phone-label').textContent = c.contact_phone;
+  renderOnboarding();
   
   buildPills();
   
@@ -685,6 +796,9 @@ window.addEventListener('load', () => {
   initMap();
   leafMap.setView([48.862,2.333],13);
   setLang('fr');
+  let seen = false;
+  try { seen = localStorage.getItem('paris_onboarded') === '1'; } catch(e) {}
+  if (!seen) showOnboarding();
 });
 </script>
 </body>
