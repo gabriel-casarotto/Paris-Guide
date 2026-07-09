@@ -17,7 +17,7 @@ A lightweight web app designed to help travelers discover Paris from their phone
 * Leaflet.js & OpenStreetMap
 * Fonts: Inter & Syne (Google Fonts)
 
-
+## Result
 Here's the link : [Paris guide website](https://gabriel-casarotto.github.io/Paris-Guide/)
 
 ![alt image](https://github.com/gabriel-casarotto/Paris-Guide/blob/main/paris.png?raw=true)
