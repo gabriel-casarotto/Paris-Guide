@@ -37,6 +37,7 @@ body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); 
 .insta-btn-top {
   display:flex; align-items:center; gap:6px;
   background:linear-gradient(135deg,#FF4D00,#FFB800);
+  border:none; cursor:pointer;
   color:#fff; text-decoration:none;
   font-family:'Syne',sans-serif; font-size:11px; font-weight:700; letter-spacing:.5px;
   padding:8px 12px; border-radius:6px; transition:opacity .15s; flex-shrink:0;
@@ -292,6 +293,14 @@ body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); 
 }
 .lang-select-btn:active { background:var(--accent); border-color:var(--accent); color:#fff; }
 .lang-select-flag { font-size:19px; }
+
+/* CONTACT MODAL (reuses .contact-footer content styles inside .onboard-card) */
+.contact-modal-title {
+  font-family:'Syne',sans-serif; font-size:17px; font-weight:800; margin-bottom:8px;
+}
+.contact-modal-text {
+  font-size:13px; color:var(--muted2); line-height:1.6; margin-bottom:20px;
+}
 </style>
 </head>
 <body>
@@ -299,10 +308,10 @@ body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); 
 <div class="top-bar">
   <div class="logo">Paris<span>.</span></div>
   <div class="top-right">
-    <a class="insta-btn-top" href="https://www.instagram.com/gotagab/" target="_blank" rel="noopener">
+    <button class="insta-btn-top" onclick="showContact()">
       <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2c2.717 0 3.056.01 4.122.06 1.065.05 1.79.217 2.428.465.66.256 1.216.6 1.772 1.153a4.908 4.908 0 0 1 1.153 1.772c.247.637.415 1.363.465 2.428.048 1.066.06 1.405.06 4.122 0 2.717-.01 3.056-.06 4.122-.05 1.065-.218 1.79-.465 2.428a4.883 4.883 0 0 1-1.153 1.772 4.915 4.915 0 0 1-1.772 1.153c-.637.247-1.363.415-2.428.465-1.066.048-1.405.06-4.122.06-2.717 0-3.056-.012-4.122-.06-1.065-.05-1.79-.218-2.428-.465a4.89 4.89 0 0 1-1.772-1.153 4.904 4.904 0 0 1-1.153-1.772c-.248-.637-.415-1.363-.465-2.428C2.013 15.056 2 14.717 2 12c0-2.717.01-3.056.06-4.122.05-1.066.217-1.79.465-2.428a4.88 4.88 0 0 1 1.153-1.772A4.897 4.897 0 0 1 5.45 2.525c.638-.248 1.362-.415 2.428-.465C8.944 2.012 9.283 2 12 2Zm0 5a5 5 0 1 0 0 10 5 5 0 0 0 0-10Zm0 8.25a3.25 3.25 0 1 1 0-6.5 3.25 3.25 0 0 1 0 6.5Zm5.5-9.6a1.15 1.15 0 1 1-2.3 0 1.15 1.15 0 0 1 2.3 0Z" fill="currentColor"/></svg>
       <span id="insta-btn-label">Insta</span>
-    </a>
+    </button>
     <button class="help-btn-top" onclick="showOnboarding()" aria-label="Aide">?</button>
     <div class="lang-group">
       <button class="lang-btn active" onclick="setLang('fr')">FR</button>
@@ -332,6 +341,26 @@ body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); 
     </div>
     <div class="onboard-steps" id="onboard-steps"></div>
     <button class="onboard-cta" onclick="hideOnboarding()" id="onboard-cta">C'est parti !</button>
+  </div>
+</div>
+
+<div class="onboard-overlay" id="contact-overlay">
+  <div class="onboard-card">
+    <div class="onboard-head">
+      <div class="contact-modal-title" id="contact-modal-title" style="margin-bottom:0;">Une question ?</div>
+      <button class="onboard-close" onclick="hideContact()">✕</button>
+    </div>
+    <div class="contact-modal-text" id="contact-modal-text">N'hésitez pas à me contacter sur Instagram ou par téléphone pour un message direct.</div>
+    <div class="contact-btns">
+      <a class="contact-btn insta" href="https://www.instagram.com/gotagab/" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2c2.717 0 3.056.01 4.122.06 1.065.05 1.79.217 2.428.465.66.256 1.216.6 1.772 1.153a4.908 4.908 0 0 1 1.153 1.772c.247.637.415 1.363.465 2.428.048 1.066.06 1.405.06 4.122 0 2.717-.01 3.056-.06 4.122-.05 1.065-.218 1.79-.465 2.428a4.883 4.883 0 0 1-1.153 1.772 4.915 4.915 0 0 1-1.772 1.153c-.637.247-1.363.415-2.428.465-1.066.048-1.405.06-4.122.06-2.717 0-3.056-.012-4.122-.06-1.065-.05-1.79-.218-2.428-.465a4.89 4.89 0 0 1-1.772-1.153 4.904 4.904 0 0 1-1.153-1.772c-.248-.637-.415-1.363-.465-2.428C2.013 15.056 2 14.717 2 12c0-2.717.01-3.056.06-4.122.05-1.066.217-1.79.465-2.428a4.88 4.88 0 0 1 1.153-1.772A4.897 4.897 0 0 1 5.45 2.525c.638-.248 1.362-.415 2.428-.465C8.944 2.012 9.283 2 12 2Zm0 5a5 5 0 1 0 0 10 5 5 0 0 0 0-10Zm0 8.25a3.25 3.25 0 1 1 0-6.5 3.25 3.25 0 0 1 0 6.5Zm5.5-9.6a1.15 1.15 0 1 1-2.3 0 1.15 1.15 0 0 1 2.3 0Z" fill="currentColor"/></svg>
+        <span id="contact-insta-label-2">@gotagab sur Instagram</span>
+      </a>
+      <a class="contact-btn phone" href="tel:+33777755193">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C10.61 21 3 13.39 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.46.57 3.58a1 1 0 0 1-.24 1.01l-2.21 2.2Z" fill="currentColor"/></svg>
+        <span id="contact-phone-label-2">+33 7 77 75 51 93</span>
+      </a>
+    </div>
   </div>
 </div>
 
@@ -367,20 +396,7 @@ body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); 
   </div>
 </div>
 
-<div class="contact-footer">
-  <div class="contact-title" id="contact-title">Une question ?</div>
-  <div class="contact-text" id="contact-text">N'hésitez pas à me contacter sur Instagram ou par téléphone pour un message direct.</div>
-  <div class="contact-btns">
-    <a class="contact-btn insta" href="https://www.instagram.com/gotagab/" target="_blank" rel="noopener">
-      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2c2.717 0 3.056.01 4.122.06 1.065.05 1.79.217 2.428.465.66.256 1.216.6 1.772 1.153a4.908 4.908 0 0 1 1.153 1.772c.247.637.415 1.363.465 2.428.048 1.066.06 1.405.06 4.122 0 2.717-.01 3.056-.06 4.122-.05 1.065-.218 1.79-.465 2.428a4.883 4.883 0 0 1-1.153 1.772 4.915 4.915 0 0 1-1.772 1.153c-.637.247-1.363.415-2.428.465-1.066.048-1.405.06-4.122.06-2.717 0-3.056-.012-4.122-.06-1.065-.05-1.79-.218-2.428-.465a4.89 4.89 0 0 1-1.772-1.153 4.904 4.904 0 0 1-1.153-1.772c-.248-.637-.415-1.363-.465-2.428C2.013 15.056 2 14.717 2 12c0-2.717.01-3.056.06-4.122.05-1.066.217-1.79.465-2.428a4.88 4.88 0 0 1 1.153-1.772A4.897 4.897 0 0 1 5.45 2.525c.638-.248 1.362-.415 2.428-.465C8.944 2.012 9.283 2 12 2Zm0 5a5 5 0 1 0 0 10 5 5 0 0 0 0-10Zm0 8.25a3.25 3.25 0 1 1 0-6.5 3.25 3.25 0 0 1 0 6.5Zm5.5-9.6a1.15 1.15 0 1 1-2.3 0 1.15 1.15 0 0 1 2.3 0Z" fill="currentColor"/></svg>
-      <span id="contact-insta-label">@gotagab sur Instagram</span>
-    </a>
-    <a class="contact-btn phone" href="tel:+33777755193">
-      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C10.61 21 3 13.39 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.46.57 3.58a1 1 0 0 1-.24 1.01l-2.21 2.2Z" fill="currentColor"/></svg>
-      <span id="contact-phone-label">+33 7 77 75 51 93</span>
-    </a>
-  </div>
-</div>
+
 
 <script>
 // ──────────────────────────────────────────
@@ -450,7 +466,7 @@ const L10N = {
     dayFmt: n => `Jour ${n}`, dayBtnFmt: n => `J${n}`,
     pills:["1 jour — L'essentiel","2 jours — Le classique","3 jours — Paris complet","4 jours — Paris profond","5+ jours — Vivre Paris"],
     tags:{food:"À manger",view:"Belle vue",culture:"Culture",walk:"Ballade",secret:"Secret"},
-    insta_btn:"Insta",
+    insta_btn:"Contact",
     contact_title:"Une question ?",
     contact_text:"Si vous êtes sur Paris quelques jours, n'hésitez pas à me contacter directement sur Instagram ou par téléphone.",
     contact_insta:"@gotagab sur Instagram",
@@ -498,7 +514,7 @@ const L10N = {
     dayFmt: n => `Day ${n}`, dayBtnFmt: n => `D${n}`,
     pills:["1 day — Essentials","2 days — Classic","3 days — Full Paris","4 days — Deep Paris","5+ days — Living Paris"],
     tags:{food:"Eat this",view:"Great view",culture:"Culture",walk:"Walk",secret:"Hidden gem"},
-    insta_btn:"Insta",
+    insta_btn:"Contact",
     contact_title:"Got a question?",
     contact_text:"If you're in Paris for a few days, feel free to message me directly on Instagram or by phone.",
     contact_insta:"@gotagab on Instagram",
@@ -546,7 +562,7 @@ const L10N = {
     dayFmt: n => `${n}일차`, dayBtnFmt: n => `${n}일`,
     pills:["1일 — 핵심만","2일 — 클래식","3일 — 파리 완전 정복","4일 — 깊은 파리","5일+ — 파리 살기"],
     tags:{food:"먹거리",view:"뷰포인트",culture:"문화",walk:"산책",secret:"숨은 명소"},
-    insta_btn:"인스타",
+    insta_btn:"연락하기",
     contact_title:"궁금한 점이 있으신가요?",
     contact_text:"파리에 며칠 머무신다면, 인스타그램이나 전화로 편하게 직접 연락 주세요.",
     contact_insta:"인스타그램 @gotagab",
@@ -793,6 +809,17 @@ function pickLanguage(l) {
 }
 
 // ──────────────────────────────────────────
+// CONTACT MODAL
+// ──────────────────────────────────────────
+function showContact() {
+  document.getElementById('contact-overlay').classList.add('show');
+}
+
+function hideContact() {
+  document.getElementById('contact-overlay').classList.remove('show');
+}
+
+// ──────────────────────────────────────────
 // LANGUAGE
 // ──────────────────────────────────────────
 function setLang(l) {
@@ -816,10 +843,10 @@ function setLang(l) {
   }
 
   document.getElementById('insta-btn-label').textContent = c.insta_btn;
-  document.getElementById('contact-title').textContent = c.contact_title;
-  document.getElementById('contact-text').textContent = c.contact_text;
-  document.getElementById('contact-insta-label').textContent = c.contact_insta;
-  document.getElementById('contact-phone-label').textContent = c.contact_phone;
+  document.getElementById('contact-modal-title').textContent = c.contact_title;
+  document.getElementById('contact-modal-text').textContent = c.contact_text;
+  document.getElementById('contact-insta-label-2').textContent = c.contact_insta;
+  document.getElementById('contact-phone-label-2').textContent = c.contact_phone;
   renderOnboarding();
   
   buildPills();
