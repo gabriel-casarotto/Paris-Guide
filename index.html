@@ -275,6 +275,23 @@ body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); 
   background:linear-gradient(135deg,#FF4D00,#FFB800); color:#fff;
   font-family:'Syne',sans-serif; font-size:14px; font-weight:800; letter-spacing:.3px;
 }
+
+/* LANGUAGE SELECT */
+.lang-select-title {
+  font-family:'Syne',sans-serif; font-size:17px; font-weight:800; line-height:1.4; margin-bottom:4px;
+}
+.lang-select-sub {
+  font-size:13px; color:var(--muted); margin-bottom:20px; line-height:1.5;
+}
+.lang-select-btns { display:flex; flex-direction:column; gap:10px; }
+.lang-select-btn {
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  width:100%; padding:16px; border-radius:12px; cursor:pointer;
+  background:var(--bg); border:1.5px solid var(--border); color:var(--text);
+  font-family:'Syne',sans-serif; font-size:15px; font-weight:700; transition:all .15s;
+}
+.lang-select-btn:active { background:var(--accent); border-color:var(--accent); color:#fff; }
+.lang-select-flag { font-size:19px; }
 </style>
 </head>
 <body>
@@ -291,6 +308,18 @@ body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); 
       <button class="lang-btn active" onclick="setLang('fr')">FR</button>
       <button class="lang-btn" onclick="setLang('en')">EN</button>
       <button class="lang-btn" onclick="setLang('ko')">한국어</button>
+    </div>
+  </div>
+</div>
+
+<div class="onboard-overlay" id="lang-select-overlay">
+  <div class="onboard-card">
+    <div class="lang-select-title">Choisissez votre langue<br>Choose your language<br>언어를 선택하세요</div>
+    <div class="lang-select-sub">Le site s'affichera dans la langue choisie / The site will display in the chosen language / 선택한 언어로 사이트가 표시됩니다</div>
+    <div class="lang-select-btns">
+      <button class="lang-select-btn" onclick="pickLanguage('fr')"><span class="lang-select-flag">🇫🇷</span> Français</button>
+      <button class="lang-select-btn" onclick="pickLanguage('en')"><span class="lang-select-flag">🇬🇧</span> English</button>
+      <button class="lang-select-btn" onclick="pickLanguage('ko')"><span class="lang-select-flag">🇰🇷</span> 한국어</button>
     </div>
   </div>
 </div>
@@ -752,6 +781,18 @@ function hideOnboarding() {
 }
 
 // ──────────────────────────────────────────
+// LANGUAGE SELECT (first visit)
+// ──────────────────────────────────────────
+function pickLanguage(l) {
+  setLang(l);
+  try { localStorage.setItem('paris_lang', l); } catch(e) {}
+  document.getElementById('lang-select-overlay').classList.remove('show');
+  let seen = false;
+  try { seen = localStorage.getItem('paris_onboarded') === '1'; } catch(e) {}
+  if (!seen) showOnboarding();
+}
+
+// ──────────────────────────────────────────
 // LANGUAGE
 // ──────────────────────────────────────────
 function setLang(l) {
@@ -795,10 +836,19 @@ window.addEventListener('load', () => {
   buildPills();
   initMap();
   leafMap.setView([48.862,2.333],13);
-  setLang('fr');
-  let seen = false;
-  try { seen = localStorage.getItem('paris_onboarded') === '1'; } catch(e) {}
-  if (!seen) showOnboarding();
+
+  let savedLang = null;
+  try { savedLang = localStorage.getItem('paris_lang'); } catch(e) {}
+
+  if (savedLang && L10N[savedLang]) {
+    setLang(savedLang);
+    let seen = false;
+    try { seen = localStorage.getItem('paris_onboarded') === '1'; } catch(e) {}
+    if (!seen) showOnboarding();
+  } else {
+    setLang('fr');
+    document.getElementById('lang-select-overlay').classList.add('show');
+  }
 });
 </script>
 </body>
